@@ -103,7 +103,5 @@ void Mesh::loadTextures(void)
 		SOIL_free_image_data(image);
 	}
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
-
-	
 }
 

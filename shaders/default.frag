@@ -5,6 +5,8 @@ in vec3 outColor;
 
 out vec4 color;
 
+uniform vec3 viewPos;
+
 vec3 lightPos = vec3(5.0, 5.0, 0.0);
 vec3 ambientComponent = vec3(0.2);
 vec3 diffuseComponent = vec3(0.5);
