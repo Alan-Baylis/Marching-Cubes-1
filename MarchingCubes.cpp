@@ -93,7 +93,7 @@ TRIANGLE1* MarchingCubes(int ncellsX, int ncellsY, int ncellsZ, float minValue, 
 				// tablica intVerts reprezentuje kazda z krawedzi szescianu
 				// (gdzie na kazdej z krawedzi moze znalezc sie punkt przeciecia).
 				//get intersection vertices on edges and save into the array
-   				glm::vec3 intVerts[12];
+				glm::vec3 intVerts[12];
    /*(step 6)*/ if(edgeTable[cubeIndex] & 1) intVerts[0] = intersection(verts[0], verts[1], minValue);
 				if(edgeTable[cubeIndex] & 2) intVerts[1] = intersection(verts[1], verts[2], minValue);
 				if(edgeTable[cubeIndex] & 4) intVerts[2] = intersection(verts[2], verts[3], minValue);
@@ -148,7 +148,7 @@ TRIANGLE* MarchingCubes(int ncellsX, int ncellsY, int ncellsZ,
 	float minValue, glm::vec4 * points, int &numTriangles)
 {
 	//this should be enough space, if not change 3 to 4
-	TRIANGLE * triangles = new TRIANGLE[3 * ncellsX*ncellsY*ncellsZ];
+	TRIANGLE * triangles = new TRIANGLE[4 * ncellsX*ncellsY*ncellsZ];
 	numTriangles = int(0);
 
 	pointsZ = ncellsZ + 1;			//initialize global variable (for extra speed) 
@@ -403,7 +403,7 @@ TRIANGLE* MarchingCubes(int ncellsX, int ncellsY, int ncellsZ,
 					for(int h = 0; h < 3; h++)
 					{	//copy vertices and normals into triangles array
 						triangles[numTriangles].p[h] = intVerts[index[h]];
-						triangles[numTriangles].norm[h] = grads[index[h]];
+						triangles[numTriangles].norm[h] = -grads[index[h]];
 					}
 					numTriangles++;	//one more triangle has been added
 				}

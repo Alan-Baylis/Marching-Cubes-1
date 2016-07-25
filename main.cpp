@@ -122,11 +122,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			painter.flipWireframeTrisMode();
 			break;
 		case GLFW_KEY_MINUS:
-			app->minValue -= 0.1f;
+			app->minValue -= 5.0f;
 			app->regenerateTriangles();
 			break;
 		case GLFW_KEY_EQUAL:
-			app->minValue += 0.1f;
+			app->minValue += 5.0f;
 			app->regenerateTriangles();
 			break;
 		case GLFW_KEY_ESCAPE:

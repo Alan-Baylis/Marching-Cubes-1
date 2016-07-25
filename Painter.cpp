@@ -23,12 +23,12 @@ void Painter::flipWireframeTrisMode(void)
 	if(_wireframeMode == true)
 	{
 		_wireframeMode = false;
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	else
 	{
 		_wireframeMode = true;
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 }
 
@@ -38,7 +38,7 @@ void Painter::paint(const Mesh& msh)
 	const auto& texture = msh.getTexture();
 	const auto& normalmap = msh.getNormalmap();
 	{
-		shader.Use();
+		cms_shader.Use();
 
 		// Create transformations
 		glm::mat4 view;
@@ -46,14 +46,14 @@ void Painter::paint(const Mesh& msh)
 		glm::mat4 projection;
 
 		view = camera.GetViewMatrix();
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -8.0f));
+		model = glm::translate(model, msh.translation_vector);
 		projection = glm::perspective(camera.Zoom, 800.0f / 600.0f, 0.1f, 1000.0f);
 
 		// Get their uniform location
-		GLint viewLoc = glGetUniformLocation(shader.Program, "view");
-		GLint modelLoc = glGetUniformLocation(shader.Program, "model");
-		GLint projLoc = glGetUniformLocation(shader.Program, "projection");
-		GLint cameraPosLoc = glGetUniformLocation(shader.Program, "viewPos");
+		GLint viewLoc = glGetUniformLocation(cms_shader.Program, "view");
+		GLint modelLoc = glGetUniformLocation(cms_shader.Program, "model");
+		GLint projLoc = glGetUniformLocation(cms_shader.Program, "projection");
+		GLint cameraPosLoc = glGetUniformLocation(cms_shader.Program, "viewPos");
 
 		// Pass them to the shaders
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -73,13 +73,21 @@ void Painter::paint(const Mesh& msh)
 		glBindTexture(GL_TEXTURE_2D, normalmap);
 		glUniform1i(glGetUniformLocation(shader.Program, "normalMap"), 1);
 
-		glDrawArrays(GL_TRIANGLES, 0, msh.verticesCount);
+		if(_wireframeMode)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDrawArrays(GL_TRIANGLES, 0, msh.verticesCount);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+		else
+			glDrawArrays(GL_TRIANGLES, 0, msh.verticesCount);
+
 		glBindVertexArray(0);
 	}
 
 
 	//draw_normals part
-	/*{
+	{
 		draw_normals_shader.Use();
 
 		// Create transformations
@@ -88,7 +96,7 @@ void Painter::paint(const Mesh& msh)
 		glm::mat4 projection;
 
 		view = camera.GetViewMatrix();
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -8.0f));
+		model = glm::translate(model, msh.translation_vector);
 		projection = glm::perspective(camera.Zoom, 800.0f / 600.0f, 0.1f, 1000.0f);
 
 		// Get their uniform location
@@ -103,7 +111,7 @@ void Painter::paint(const Mesh& msh)
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, msh.verticesCount);
 		glBindVertexArray(0);
-	}*/
+	}
 }
 
 void Painter::paint(const MeshCMS & msh)
@@ -120,7 +128,7 @@ void Painter::paint(const MeshCMS & msh)
 		glm::mat4 projection;
 
 		view = camera.GetViewMatrix();
-		model = glm::translate(model, glm::vec3(6.0f, 0.0f, -8.0f));
+		model = glm::translate(model, msh.translation_vector);
 		projection = glm::perspective(camera.Zoom, 800.0f / 600.0f, 0.1f, 1000.0f);
 
 		// Get their uniform location
@@ -147,9 +155,15 @@ void Painter::paint(const MeshCMS & msh)
 		//glBindTexture(GL_TEXTURE_2D, normalmap);
 		//glUniform1i(glGetUniformLocation(cms_shader.Program, "normalMap"), 1);
 		
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_TRIANGLES, msh.triangles_count, GL_UNSIGNED_INT, 0);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		if(_wireframeMode)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDrawElements(GL_TRIANGLES, msh.triangles_count, GL_UNSIGNED_INT, 0);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+		else
+			glDrawElements(GL_TRIANGLES, msh.triangles_count, GL_UNSIGNED_INT, 0);
+
 		glBindVertexArray(0);
 	}
 
@@ -163,7 +177,7 @@ void Painter::paint(const MeshCMS & msh)
 	glm::mat4 projection;
 
 	view = camera.GetViewMatrix();
-	model = glm::translate(model, glm::vec3(6.0f, 0.0f, -8.0f));
+	model = glm::translate(model, msh.translation_vector);
 	projection = glm::perspective(camera.Zoom, 800.0f / 600.0f, 0.1f, 1000.0f);
 
 	// Get their uniform location

@@ -2,7 +2,7 @@
 
 #include "MeshCMS.hpp"
 
-MeshCMS::MeshCMS(cms::Mesh & cms_mesh) : _cms_mesh(cms_mesh)
+MeshCMS::MeshCMS(cms::Mesh & cms_mesh) : translation_vector{ 0.0f }, _cms_mesh(cms_mesh)
 {
 	vertices_count = _cms_mesh.vertexCount();
 	triangles_count = _cms_mesh.indexCount();

@@ -34,7 +34,7 @@ public:
 
   /// @brief The pure virtual overloaded operator used for sampling the function
   /// implementation is in the template derived class Isosurface_t
-  virtual Real operator()(Real x, Real y, Real z) const = 0;
+	virtual Real operator()(Real x, Real y, Real z) const = 0;
 
   /// @brief Set the isolevel of the surface
   void setIsolevel(Real i_isoLevel);

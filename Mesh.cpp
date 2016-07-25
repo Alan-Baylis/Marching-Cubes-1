@@ -3,7 +3,7 @@
 #include "Painter.hpp"
 #include "Mesh.hpp"
 
-Mesh::Mesh(TRIANGLE * triangles, unsigned int tc) : triangleCount(tc)
+Mesh::Mesh(TRIANGLE * triangles, unsigned int tc) : triangleCount(tc), translation_vector{0.0f}
 {
 	this->triangles = triangles;
 
@@ -105,3 +105,83 @@ void Mesh::loadTextures(void)
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 }
 
+#include <stdlib.h> //realpath
+#include <sys/types.h>
+#include <sys/stat.h> //mkdir
+#include <direct.h> //VS _mkdir
+
+#if defined(_WIN32) || defined(_WIN64)
+// Copied from linux libc sys/stat.h:
+#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#endif
+
+bool Mesh::exportOBJ(const std::string& i_fName) const
+{
+	// Add output directory posix path to file name
+	std::string outputDir = "./output/";
+	std::string fullPath = "";
+
+	// Set the fullPath
+	fullPath = outputDir + i_fName;
+
+	// If the output folder doesn't exist try to create one
+	// if creating it was unsuccessful then modify fullPath so it just outputs to the build root
+	struct stat sb;
+	if(stat(outputDir.c_str(), &sb) != 0 || !S_ISDIR(sb.st_mode)) //dir doesn't exist
+	{
+		if(_mkdir(outputDir.c_str()) == -1)
+		{
+			std::cout << "Directory '" << outputDir << "' could not be created! \n" <<
+				"The file will not be outputed in the root of the project build dir." <<
+				std::endl;
+
+			fullPath = i_fName;
+		}
+	}
+
+	// Open the stream and parse
+	std::fstream fileOut;
+	fileOut.open(fullPath.c_str(), std::ios::out);
+
+	if(fileOut.is_open())
+	{
+		fileOut << "# CMS Isosurface extraction." << std::endl;
+		fileOut << "# George Rassovsky ~ goro.rassovsky@gmail.com \n" << std::endl;
+
+		for(unsigned int i = 0; i<verticesCount; i += 1)
+		{
+			fileOut << "v " << vertices[i].v.x << " " << vertices[i].v.y << " " << vertices[i].v.z << std::endl;
+		}
+
+		// Write vertex normals
+		for(unsigned int i = 0; i<verticesCount; i += 1)
+		{
+			fileOut << "vn " << vertices[i].n.x << " " << vertices[i].n.y << " " << vertices[i].n.z << std::endl;
+		}
+
+		// Write the face info
+		for(unsigned f = 0; f<triangleCount; f += 1)
+		{
+			auto find_idx = [&](int xyz, int face)
+			{
+				int i = 0;
+				for(; i < verticesCount; ++i)
+				{
+					if(triangles[face].p[xyz] == vertices[i].v)
+						break;
+				}
+				return i;
+			};
+			fileOut << "f " << find_idx(0, f) + 1 << " " << find_idx(1, f) + 1 << " " << find_idx(2, f) + 1<< std::endl;
+		}
+		char * resolved = 0; // todo -- error handle realpath
+		std::cout << "\nExported .py script path: not-realpath \t" << fullPath.c_str() << std::endl; // << realpath(fullPath.c_str(), resolved) << std::endl;
+		return true;
+	}
+	else
+	{
+		std::cout << "File : " << i_fName << " Not founds " << std::endl;
+		return false;
+	}
+}
